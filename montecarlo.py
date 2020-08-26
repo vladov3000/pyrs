@@ -71,7 +71,8 @@ def gen_Z_0(ns, ms, q_0, b, s, tau, threshold = 1.0):
     q_0s = get_q_0(ns, ms, b, s, tau)
     p = 0
     for i in q_0s: 
-        if abs(i - q_0) < threshold: p += 1
+#         if abs(i - q_0) < threshold: p += 1
+        if i > q_0: p += 1
     p /= len(q_0s)
     print(1 - p)
     return phi_inv(1 - p)

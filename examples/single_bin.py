@@ -135,12 +135,12 @@ def fig_4b(gen_num, path='plots', show=True):
     q_0_meds = []
     for b in bs:
         for s in ss:
-            save_file = f'data/fig_4b_10e{gen_num}_b{b}_s{s}.npy'
+            save_file = f'data/fig_4b_10e{int(np.log10(gen_num))}_b{b}_s{s}.npy'
             print(f'{save_file} exists: {os.path.exists(save_file)}') 
             if not os.path.exists(save_file):
                 ns = gen_ns(0, s, b, gen_num)
                 ms = gen_ms(b, tau, gen_num)
-                q_0s = get_q_0(ns, ms, b, s, tau)
+                q_0s = get_q_mu(n, m, 1, b, s, tau)
                 q_0s = q_0s[~np.isnan(q_0s)]
                 np.save(f'data/fig_4b_10e{int(np.log10(gen_num))}_b{b}_s{s}.npy', q_0s)
             else:
