@@ -58,13 +58,12 @@ def get_lambda(n, m, mu, b, s, tau):
 """ Calculate test statistic q """
 def get_q_0(n, m, b, s, tau):
     """ Calculate q at mu = 0. See Eqn. 12 on page 7."""
-    mh_filter = np.where(get_mu_hat(n, m, s, tau) > 0, 1, np.nan)
+    mh_filter = np.where(get_mu_hat(n, m, s, tau) >= 0, 1, 0)
     return -2 * np.log(get_lambda(n, m, 0, b, s, tau)) * mh_filter
 
 def get_q_mu(n, m, mu, b, s, tau):
     """ Calculate q given mu. See Eqn. 14 on page 7."""
-    if get_mu_hat(n, m, s, tau) > mu: return 0
-    return -2 * np.log(get_lambda(n, m, mu, b, s, tau))
+    return np.where(get_mu_hat(n, m, s, tau) <= mu, -2 * np.log(get_lambda(n, m, mu, b, s, tau)), 0)
 
 def gen_Z_0(ns, ms, q_0, b, s, tau, threshold = 1.0):
     """ Calculate significance Z_0. See Eqn. 1 on page 3 """
@@ -74,5 +73,22 @@ def gen_Z_0(ns, ms, q_0, b, s, tau, threshold = 1.0):
 #         if abs(i - q_0) < threshold: p += 1
         if i > q_0: p += 1
     p /= len(q_0s)
-    print(1 - p)
+#    print(1 - p)
     return phi_inv(1 - p)
+
+""" Calculate test statistic ~q_mu """
+def get_t_lambda(n, m, mu, b, s, tau):
+    """ See Eqn. 14 """
+
+    func1 = lambda n, m, mu, s, tau: get_likelihood(n, m, mu, get_b_2hat(n, m,     mu, s, tau), s, tau) / get_likelihood(n, m, mu, get_b_hat(m, tau), s, tau)
+
+    func2 = lambda n, m, mu, s, tau: get_likelihood(n, m, mu, get_b_2hat(n, m, mu, s, tau), s, tau) / get_likelihood(n, m, 0, get_b_2hat(n, m, 0, s, tau), s, tau)
+
+    mu_hat = get_mu_hat(n, m, s, tau)
+    res = np.where(mu_hat >= 0,  func1(n, m, mu, s, tau), 
+            func2(n, m, mu, s, tau))
+    return res
+
+def get_t_q_mu(n, m, mu, b, s, tau):
+    """ See Eqn. 16 """
+    return np.where(get_mu_hat(n, m, s, tau) <= mu, -2 * np.log(get_t_lambda(n, m, mu, b, s, tau)), 0)
